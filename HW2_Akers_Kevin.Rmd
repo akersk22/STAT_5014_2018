@@ -1,0 +1,45 @@
+---
+title: "Homework 2"
+author: "Kevin Akers"
+#date: "September 4, 2018"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(swirl)
+library(dplyr)
+```
+
+## Problem 4
+The first and most obvious benefit of using a version control system is that it allows a user to store and have instant access to all the versions of a particular project. This in turn allows one to return to any previous state if necessary. I believe this is helpful both in the classroom and on the job.
+
+##Problem 5
+I completely ran out of time while working on this assignment and take full responsibility for it.
+
+##Problem 6
+I started by selecting the appropriate variables and removing the entries that were missing data.
+```{r, echo=FALSE}
+.datapath <- file.path(path.package('swirl'), 'Courses',
+'R_Programming_E', 'Looking_at_Data',
+'plant-data.txt')
+# Read in data
+plants <- read.csv(.datapath, strip.white=TRUE, na.strings="")
+# Remove annoying columns
+.cols2rm <- c('Accepted.Symbol', 'Synonym.Symbol')
+plants <- plants[, !(names(plants) %in% .cols2rm)]
+# Make names pretty
+names(plants) <- c('Scientific_Name', 'Duration', 'Active_Growth_Period',
+'Foliage_Color', 'pH_Min', 'pH_Max',
+'Precip_Min', 'Precip_Max',
+'Shade_Tolerance', 'Temp_Min_F')
+```
+```{r}
+plants2 <- select(plants, pH_Min, pH_Max)
+plants3 <- filter(plants2, !is.na(pH_Min), !is.na(pH_Max))
+```
+Then I ran the analysis.
+```{r}
+simple.fit <- lm(pH_Min~pH_Max, plants3)
+summary(simple.fit)
+```
