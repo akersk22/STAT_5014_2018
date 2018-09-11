@@ -1,0 +1,67 @@
+---
+title: "HW3_Akers_Kevin"
+author: "Kevin Akers"
+date: "September 10, 2018"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(ggplot2)
+library(dplyr)
+library(readr)
+library(tidyr)
+library(animation)
+```
+
+##Problem 4
+The key takeaway for me was that each organization will have its own style guidelines and that you have to adapt to them after joining a particular organization.
+
+##Problem 5
+The only real problem noted in the lint output was that I needed to make sure to use correct spacing, especially after a comma.
+
+##Problem 6
+```{r}
+HW3_data <- readRDS("~/Desktop/STAT 5014/STAT_5015_homework_/03_good_programming_R_functions/HW3_data.rds")
+summary <- function(dev1, dev2) {
+    av <- c(mean(dev1), mean(dev2))
+    deviation <- c(sd(dev1), sd(dev2))
+    corr <- c(cor(dev1, dev2), cor(dev2, dev1))
+    summary <- data.frame(av, deviation, corr)
+}
+for(i in 1:13){
+  print(summary(filter(HW3_data, Observer == i)[, "dev1"], filter(HW3_data, Observer == i)[, "dev2"]))
+}
+```
+The table above shows the means, standard deviations, and correlations for dev1 and dev2 for all thirteen observers. Now we will produce the plots of the means and standard deviations, respectively.
+```{r}
+mean1 <- data.frame( )
+mean2 <- data.frame( )
+sd1 <- data.frame( )
+sd2 <- data.frame( )
+for(i in 1:13){
+  mean_dev1 <- mean(filter(HW3_data, Observer == i)[, "dev1"])
+  mean_dev2 <- mean(filter(HW3_data, Observer == i)[, "dev2"])
+  sd_dev1 <- sd(filter(HW3_data, Observer == i)[, "dev1"])
+  sd_dev2 <- sd(filter(HW3_data, Observer == i)[, "dev2"])
+  mean1 <- append(mean1, mean_dev1)
+  mean2 <- append(mean2, mean_dev2)
+  sd1 <- append(sd1, sd_dev1)
+  sd2 <- append(sd2, sd_dev2)
+}
+boxplot(mean1, mean2, xlab = "Mean 1", ylab = "Mean 2", main = "Plot of the Means")
+boxplot(sd1, sd2, xlab = "Standard Deviation 1", ylab = "Standard Deviation 2", main = "Plot of the Standard Deviations")
+```
+
+##Problem 7
+```{r}
+blood <- read.table("https://www2.isye.gatech.edu/~jeffwu/wuhamadabook/data/BloodPressure.dat", sep = " ", fill = TRUE, skip = 2)
+blood <- blood[, -5]
+colnames(blood) <- c("Day", "Device 1", "Device 2", "Device 3", "Doctor 1", "Doctor 2", "Doctor 3")
+blood
+```
+
+##Problem 8
+```{r}
+newton.method(FUN = function(x) 3^x - sin(x) + cos(5*x), init = -1, rg = c(-5, 0), tol = .1, interact = FALSE, col.lp = c("blue", "red", "purple"), main = "Newton's Method", ylab = "f(x)")
+```
