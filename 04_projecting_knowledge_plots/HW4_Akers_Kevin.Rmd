@@ -1,0 +1,47 @@
+---
+title: "HW4"
+author: "Kevin Akers"
+date: "September 18, 2018"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(ggplot2)
+library(ggExtra)
+library(xlsx)
+library(corrplot)
+```
+
+##Problem 3
+According to Peng, the EDA stage acts as a kind of "editing room" for the project. The goals are things like checking for problems with the data and identifying relationships between variables.
+
+##Problem 4
+```{r}
+prob4_data1 <- read.xlsx("HW4_data.xlsx", sheetIndex = 1)
+prob4_data2 <- read.xlsx("HW4_data.xlsx", sheetIndex = 2)
+hw4 <- data.frame(rbind(prob4_data1, prob4_data2))
+
+#What a nice function!
+knitr::kable(summary(hw4), caption = "Data Summary")
+
+#Multipanel plot
+par(mfrow = c(2, 2))
+hist(hw4$phosphate, main = "Phosphate", xlab = "Phosphate", col = "purple")
+hist(hw4$depth, main = "Depth", xlab = "Depth", col = "blue")
+
+#Correlation plot
+hw4_corr <- cor(hw4)
+corrplot(hw4_corr, method = "circle", bg = "orange")
+```
+
+##Problem 5
+```{r}
+multiplot <- function(x){
+  plotgg <- ggplot(x, aes(x[,1], x[,2])) + geom_point() + theme_classic()
+  #Really nice function!
+  ggMarginal(plotgg, x, type = "histogram", yparams=list(colour="red"))
+}
+x <- data.frame(cars$speed, cars$dist)
+multiplot(x)
+```
