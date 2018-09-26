@@ -1,0 +1,134 @@
+---
+title: "Homework 5"
+author: "Kevin Akers"
+date: "September 25, 2018"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(plyr)
+library(dplyr)
+library(ggplot2)
+library(downloader)
+library(data.table)
+library(knitr)
+library(readr)
+library(fiftystater)
+library(maps)
+library(mapdata)
+```
+
+##Problem 3
+A good figure should have clearly labeled axes. Using different colors or shading can also make it easier to illustrate what you're trying to convey with the figure.
+
+##Problem 4
+
+```{r}
+success <- function(x){
+  sum(x)/length(x)
+}
+
+set.seed(12345)
+P4b_data <- matrix(rbinom(10, 1, prob = (30:40)/100), nrow = 10, ncol = 10)
+
+#Proportion of successes in each column
+apply(P4b_data, 2, success)
+
+#Proportion of successes in each row
+apply(P4b_data, 1, success)
+```
+
+All the columns are the same, while the rows are either a $0$ or a $1$.
+
+```{r}
+prob <- function(x){
+  rbinom(10, 1, prob = x)
+}
+
+prob_vector <- (30:40)/100
+
+prob_matrix <- sapply(prob_vector, prob)
+
+apply(prob_matrix, 2, success)
+```
+
+##Problem 5
+```{r}
+url <- "http://www2.isye.gatech.edu/~jeffwu/book/data/starch.dat"
+starch <- read.table(url, header = T)
+knitr::kable(summary(starch), caption = "Data Summary")
+#First we graph strength vs thickness divided up by starch.
+ggplot(data = starch, aes(x = thickness, y = strength, color = starch)) +
+  geom_point() +
+  facet_wrap(~starch) + 
+  ggtitle("Scatter Plots by Starch") + 
+  theme(plot.title = element_text(hjust = 0.5))
+#Then we produce histograms for strength and thickness, respectively.
+ggplot(data = starch, aes(x = strength)) +
+  geom_histogram() + 
+  facet_wrap(~starch) + 
+  ggtitle("Histograms for Strength") + 
+  theme(plot.title = element_text(hjust = 0.5))
+ggplot(data = starch, aes(x = thickness)) +
+  geom_histogram() + 
+  facet_wrap(~starch) + 
+  ggtitle("Histograms for Thickness") + 
+  theme(plot.title = element_text(hjust = 0.5))
+```
+
+##Problem 6
+```{r}
+download("http://www.farinspace.com/wp-content/uploads/us_cities_and_states.zip",
+         dest = "us_cities_states.zip") 
+unzip("us_cities_states.zip", exdir = "./")
+states <- fread(input = "./us_cities_and_states/states.sql",
+                sep = "'", sep2 = ",", header = F, select = c(2, 4))
+colnames(states) <- c("state_name","state")
+cities <- fread(input = "./us_cities_and_states/cities_extended.sql", header = F,
+                sep = "'", sep2 = ",", select = c(2, 4, 6, 8, 10, 12))
+colnames(cities) <- c("city","state","zip","lat","long","county")
+unique_cities <- fread(input = "./us_cities_and_states/cities.sql", header = F,
+                sep = "'", sep2 = ",", select = c(2, 4))
+colnames(unique_cities) <- c("city","state")
+
+#Part b.
+count_cities <- unique_cities %>% group_by(state) %>%
+                summarise(count = n()) %>%
+                arrange(state)
+count_cities1 <- cbind(count_cities[1:10,], count_cities[11:20,], 
+                      count_cities[21:30,], count_cities[31:40,], count_cities[41:50,])
+colnames(count_cities1) <- paste(rep(c("State", "Cities"), 5))
+kable(count_cities1, caption = "Number of Cities in Each State")
+
+#Part c.
+letter_occ <- function(letter, state_name){
+  letter_vec <- unlist(strsplit(state_name,""))
+  sum(letter_vec == letter)
+}
+
+letter_count <- data.frame(matrix(NA, nrow = nrow(states), ncol = 26))
+
+for(i in 1:50){
+  letter_count[i,] <- sapply(letters, FUN = letter_occ, state = tolower(states[i,1]))
+}
+
+data("fifty_states") 
+crimes <- data.frame(state = tolower(rownames(USArrests)), USArrests)
+# map_id creates the aesthetic mapping to the state name
+# column in your data
+# create the datasets needed for the city counts map
+map_data1 <- count_cities %>% left_join(states) %>% 
+  na.omit() %>% filter(state != "DC") %>%
+  mutate(state_name = tolower(state_name)) %>%
+  select(state_name, count)
+p1 <- ggplot(map_data1, aes(map_id = state_name)) +
+  geom_map(aes(fill = count), map = fifty_states) + 
+  expand_limits(x = fifty_states$long,
+                y = fifty_states$lat) + coord_map() + 
+  scale_x_continuous(breaks = NULL) + scale_y_continuous(breaks = NULL) + 
+  labs(x = "", y = "") + 
+  theme(legend.position = "bottom", panel.background = element_blank(),
+        plot.title = element_text(hjust = 0.5))
+p1
+```
