@@ -1,0 +1,29 @@
+---
+title: "HW7"
+author: "Kevin Akers"
+date: "October 10, 2018"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(ggplot2)
+library(gganimate)
+library(readr)
+library(utils)
+library(datasauRus)
+```
+
+##Part a
+```{r}
+ggplot(datasaurus_dozen, aes(x=x, y=y, colour=dataset)) +
+    geom_point(alpha=.3) 
+```
+
+##Part b
+```{r}
+ggplot(datasaurus_dozen, aes(x = x, y = y)) +
+  geom_point() +
+  transition_states(dataset, 3, 1)
+  ease_aes('cubic-in-out')
+```
