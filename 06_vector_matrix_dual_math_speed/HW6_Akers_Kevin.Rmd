@@ -1,0 +1,61 @@
+---
+title: "R Notebook"
+output:
+  html_document:
+    df_print: paged
+---
+
+##Problem 2
+```{r}
+library(knitr)
+#First way
+set.seed(12345)
+y <- seq(from = 0, to = 100, length.out = 1e+08) + rnorm(1e+08)
+#------method a: loop----
+ymean <- mean(y)
+d <- 0
+time1 <- system.time({
+  for (i in 1:length(y)){
+    d <- d + (y[i] - ymean)^2
+  }
+})
+
+#Vectors
+time2 <- system.time({d2 <- sum((y-ymean)^2)})
+```
+First method: The sum of squares total is `r d` and the system time is `r time1`.
+
+Second method: The sum of squares total is `r d2` and the system time is `r time2`.
+
+##Problem 3
+```{r}
+set.seed(1256)
+theta <- as.matrix(c(1, 2), nrow = 2)
+x <- cbind(1, rep(1:10, 10))
+h <- x %*% theta + rnorm(100, 0, 0.2)
+newtheta <- as.matrix(c(0, 0), nrow = 2)
+alpha <- 0.01
+m <- length(h)
+tol <- 0.01
+
+for(i in 1:length(h)){
+  while(abs(newtheta[1]-theta[1]) && abs(newtheta[2]-theta[2]) > tol){
+    newtheta[1] <- theta[1] - alpha/m * sum(newtheta[1] + newtheta[2]*x[i] - h[i])
+    newtheta[2] <- theta[2] - alpha/m * sum((theta[1] + theta[2]*x[i] - h[i])*x[i])
+  }
+}
+
+#Linear model for h and x
+lmhx <- lm(h~0+x)
+```
+
+My estimates were $1.000283$ and $1.999983$, while the lm estimates were $.97$ and $2$.
+
+##Problem 4
+I think we could use
+```{r, eval = FALSE}
+solve(t(X) %*% X, t(X) %*% Y)
+```
+
+##Problem 5
+Knitting this on my computer isn't a good idea.
